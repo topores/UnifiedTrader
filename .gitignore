@@ -1,0 +1,5 @@
+/venv
+service_files/api_keys.ini
+/logs/*
+/logging_utils/telegramhandler.py
+strategy/*.pickle

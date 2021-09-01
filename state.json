@@ -1,0 +1,17 @@
+{
+    "timestamp": 1629949934.611813,
+    "app_context": {
+        "invoker_fault": false,
+        "executor_fault": false,
+        "position_reducer_fault": false,
+        "logger_fault": false,
+        "app_exit": true,
+        "info": {
+            "margin_rate": 0.5813995246668622,
+            "position_reducer_latency": 0.552782,
+            "executor_latency": 1.4e-05,
+            "current_balance": 10.0,
+            "invoker_latency": 2.163282
+        }
+    }
+}
