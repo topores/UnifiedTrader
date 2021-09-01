@@ -33,7 +33,7 @@ pip3 install -r requirements.txt
                                                 self.storage,
                                                 margin_rate_border=<your margin rate value>)
    ```
-   - **Position reducer** instance closes the oldest position if account margin rate is less than margin_rate_border. You can override its logic in `processes/position_reducer.py`
+   - **Position reducer** instance closes the oldest position if account margin rate is less than *margin_rate_border*. You can override its logic in `processes/position_reducer.py`
    
 - Set **test** arg to **False** for `self.exchangeconnector` and `self.algorithm` in `src/app.py`:
    ```python
