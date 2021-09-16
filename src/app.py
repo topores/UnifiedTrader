@@ -24,18 +24,13 @@ class App():
         self.exchangeconnector = ExchangeConnector(test=True)
         self.algorithm = Algorithm(test=True)
 
-        self.ctx = AppContext()
+        #группы данных
+        self.ctx = AppContext(self.exchangeconnector,self.storage)
 
-        self.executor = Executor(ctx=self.ctx,
-                                 exchange_connector=self.exchangeconnector,
-                                 storage=self.storage)
+        self.executor = Executor(ctx=self.ctx)
         self.invoker = Invoker(ctx=self.ctx,
-                               exchange_connector=self.exchangeconnector,
-                               storage=self.storage,
                                algo=self.algorithm)
         self.position_reducer = PositionReducer(self.ctx,
-                                                self.exchangeconnector,
-                                                self.storage,
                                                 margin_rate_border=0.12)
 
 

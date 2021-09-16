@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="901df236-7fd8-4e9f-8749-2fa1d634ecc0" name="Changes" comment="release">
+    <list default="true" id="901df236-7fd8-4e9f-8749-2fa1d634ecc0" name="Changes" comment="v1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/processes/executor.py" beforeDir="false" afterPath="$PROJECT_DIR$/processes/executor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/processes/invoker.py" beforeDir="false" afterPath="$PROJECT_DIR$/processes/invoker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/processes/position_reducer.py" beforeDir="false" afterPath="$PROJECT_DIR$/processes/position_reducer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/algorithm.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/algorithm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exchangeconnector.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/exchangeconnector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/static.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/static.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/storage.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/storage.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,6 +25,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitSEFilterConfiguration">
@@ -43,7 +56,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="run.code.analysis.last.selected.profile" value="aDefault" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -226,7 +239,14 @@
       <option name="project" value="LOCAL" />
       <updated>1629854957635</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="v1">
+      <created>1631795863736</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1631795863736</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -245,10 +265,14 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/UnifiedTrader" />
+    </ignored-roots>
     <MESSAGE value="1" />
     <MESSAGE value="pre-release" />
     <MESSAGE value="pre-release2" />
     <MESSAGE value="release" />
-    <option name="LAST_COMMIT_MESSAGE" value="release" />
+    <MESSAGE value="v1" />
+    <option name="LAST_COMMIT_MESSAGE" value="v1" />
   </component>
 </project>

@@ -74,6 +74,7 @@ class Storage():
         else:
             pass
 
+
     def add_position(self, ticker, action, amount, state=State.READY_TO_OPEN, info=None):
         pos = Position(ticker=ticker,
                        side=action,
@@ -133,7 +134,7 @@ class Storage():
         try:
             f = open(filename_, 'rb')
             data = pickle.load(f)
-            self.data = data
+            self.trade_data.data = data
             f.close()
             print('Storage loaded')
             self.logger.info('storage loaded')
@@ -142,5 +143,5 @@ class Storage():
             self.dump(filename)
             f = open(filename_, 'rb')
             data = pickle.load(f)
-            self.data = data
+            self.trade_data.data = data
             f.close()

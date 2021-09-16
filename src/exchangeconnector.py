@@ -99,20 +99,27 @@ class ExchangeConnector():
                 return el  # [''free'']
         return None
 
-    def place_order(self, ticker: str, side: int, amount: float):
+    # Длинный список параметров
+    def place_order(self, pos: Position, invert_side: bool = False):
 
-        if side == Action.SHORT:
-            e_side = 'sell'
-        elif side == Action.LONG:
-            e_side = 'buy'
+        if pos.side == Action.SHORT:
+            if not invert_side:
+                e_side = 'sell'
+            else:
+                e_side = 'buy'
+        elif pos.side == Action.LONG:
+            if not invert_side:
+                e_side = 'buy'
+            else:
+                e_side = 'sell'
         else:
             raise ValueError('wrong side value')
 
-        if amount < self.min_sizes[ticker]:
-            raise ArithmeticError('Amount less than minimum for ticker')
+        if pos.amount < self.min_sizes[pos.ticker]:
+            raise ArithmeticError('Amount less than minimum for pos.ticker')
 
         try:
-            e_ticker = dict(self.info)[ticker]
+            e_ticker = dict(self.info)[pos.ticker]
         except Exception as e:
             raise KeyError('Can not find trade exchange ticker')
 
@@ -121,12 +128,12 @@ class ExchangeConnector():
                 result = self.trade_exchange_api.place_order(market=e_ticker,
                                                              side=e_side,
                                                              price=None,
-                                                             size=amount,
+                                                             size=pos.amount,
                                                              type="market"
                                                              )
             else:
                 result = {
-                    'size': amount,
+                    'size': pos.amount,
                     'id': datetime.datetime.now().timestamp(),
                     'timestamp': datetime.datetime.now().timestamp()
                 }

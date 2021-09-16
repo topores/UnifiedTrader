@@ -2,15 +2,18 @@ import datetime
 
 
 class AppContext():
-    def __init__(self):
+    def __init__(self,exchange_connector,storage):
         self.invoker_fault = False
         self.executor_fault = False
         self.position_reducer_fault = False
         self.logger_fault = False
 
+        #группы данных
+        self.exchange_connector=exchange_connector
+        self.storage=storage
+
         self.app_exit = False
         self.info = {}
-
 
 
 class Action():
@@ -43,13 +46,14 @@ class State():
     READY_TO_CLOSE = 1
     CLOSED = 0
 
-    @staticmethod
-    def represent(action):
-        return {3: "READY_TO_OPEN",
-                2: "OPENED",
-                1: "READY_TO_CLOSE",
-                0: "CLOSED"
-                }[action]
+
+# неполный библиотечный клсс
+def represent(action):
+    return {3: "READY_TO_OPEN",
+            2: "OPENED",
+            1: "READY_TO_CLOSE",
+            0: "CLOSED"
+            }[action]
 
 
 class Position():
@@ -78,33 +82,32 @@ class Position():
         return self.__str__()
 
 
-class Util():
-    @staticmethod
-    def represent_dict(d, level=''):
-        s = ''  # level[:]
-        for el in d:
-            if type(d[el]) == list:
-                s += '{level}{key}:\n{val}\n'.format(level=level, key=el,
-                                                     val=Util.represent_list(d[el], level=level + '+++')) + '\n'
-            elif type(d[el]) == dict:
-                s += '{level}{key}:\n{val}\n'.format(level=level, key=el,
-                                                     val=Util.represent_dict(d[el], level=level + '+++')) + '\n'
-            else:
-                s += '{level}{key}: {val}\n'.format(level=level, key=el, val=d[el])
+# Неполный библиотечный класс
+def represent_dict(d, level=''):
+    s = ''  # level[:]
+    for el in d:
+        if type(d[el]) == list:
+            s += '{level}{key}:\n{val}\n'.format(level=level, key=el,
+                                                 val=represent_list(d[el], level=level + '+++')) + '\n'
+        elif type(d[el]) == dict:
+            s += '{level}{key}:\n{val}\n'.format(level=level, key=el,
+                                                 val=represent_dict(d[el], level=level + '+++')) + '\n'
+        else:
+            s += '{level}{key}: {val}\n'.format(level=level, key=el, val=d[el])
 
-        s = s[:len(s) - 1]
-        return s
+    s = s[:len(s) - 1]
+    return s
 
-    @staticmethod
-    def represent_list(d, level=''):
-        s = ''
-        for el in d:
-            if type(el) == list:
-                s += '{val}\n'.format(level=level, val=Util.represent_list(el, level=level + '+++')) + '\n'
-            elif type(el) == dict:
-                s += '{val}\n'.format(level=level, val=Util.represent_dict(el, level=level + '|')) + '\n'
-            else:
 
-                s += '{level}|{val}\n'.format(level=level, val=el)
-        s = s[:len(s) - 1]
-        return s
+def represent_list(d, level=''):
+    s = ''
+    for el in d:
+        if type(el) == list:
+            s += '{val}\n'.format(level=level, val=represent_list(el, level=level + '+++')) + '\n'
+        elif type(el) == dict:
+            s += '{val}\n'.format(level=level, val=represent_dict(el, level=level + '|')) + '\n'
+        else:
+
+            s += '{level}|{val}\n'.format(level=level, val=el)
+    s = s[:len(s) - 1]
+    return s
