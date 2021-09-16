@@ -14,12 +14,12 @@ import logging
 
 
 class PositionReducer(Thread):
-    def __init__(self, ctx: AppContext, exchange_connector: ExchangeConnector, storage_i: Storage, margin_rate_border):
+    def __init__(self, ctx: AppContext, margin_rate_border):
         Thread.__init__(self)
         self.last_invoke_time = datetime.datetime.now()
         self.ctx = ctx
-        self.exchange_connector = exchange_connector
-        self.storage_i = storage_i
+        self.exchange_connector = self.ctx.exchange_connector
+        self.storage_i = self.ctx.storage
         self.margin_rate_border = margin_rate_border
 
         self.logger = generate_logger('position_reducer')
@@ -29,6 +29,19 @@ class PositionReducer(Thread):
         self.last_invoke_time = func(datetime.datetime.now())
         self.logger.debug('New time for position reducer: {time}'.format(time=self.last_invoke_time))
 
+    def __close_oldest_position(self):
+        poses = self.storage_i.get_positions_by_state(state=State.OPENED)
+        poses_sorted = sorted(poses,
+                              key=lambda x: x.timestamp)
+        if len(poses_sorted) == 0:
+            self.logger.debug(f'margin_rate is low ({self.margin_rate_border}), but no positions found to delete')
+            return
+        position = self.storage_i.data[self.storage_i.find_position_idx(poses_sorted[0])]
+        self.storage_i.update_position_state_by_order_id(order_id=position.order_id, state=State.READY_TO_CLOSE)
+        self.logger.critical(
+            f'The oldest position was closed (state chaged to READY_TO_CLOSE) due to low margin (margin_rate={self.margin_rate_border}):\n{position}')
+
+    # длинный метод
     def _execute(self):
         balance_info = self.exchange_connector.get_balance_info()
         try:
@@ -39,16 +52,7 @@ class PositionReducer(Thread):
             return
 
         if margin_rate < self.margin_rate_border:
-            poses = self.storage_i.get_positions_by_state(state=State.OPENED)
-            poses_sorted = sorted(poses,
-                                  key=lambda x: x.timestamp)
-            if len(poses_sorted) == 0:
-                self.logger.debug(f'margin_rate is low ({self.margin_rate_border}), but no positions found to delete')
-                return
-            position = self.storage_i.data[self.storage_i.find_position_idx(poses_sorted[0])]
-            self.storage_i.update_position_state_by_order_id(order_id=position.order_id, state=State.READY_TO_CLOSE)
-            self.logger.critical(
-                f'The oldest position was closed (state chaged to READY_TO_CLOSE) due to low margin (margin_rate={self.margin_rate_border}):\n{position}')
+            self.__close_oldest_position()
 
     def run(self):
         self.logger.critical('Position reducer started')

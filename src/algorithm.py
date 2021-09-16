@@ -12,13 +12,17 @@ random.seed()
 def tf_15m_smooth_func(x):
     return x.replace(minute=(x.minute // 15) * 15)
 
+#Временное поле
+class TradeData():
+    def __init__(self, balance: float,data:dict,storage:Storage):
+        self.usd_amount = balance * 8.0 / 5
+        self.data = data
+        self.storage = storage
 
 class Algorithm():
 
     def __init__(self, test=False):
         self.test = test
-        self.data = {}
-        self.usd_amount = 0
 
         self.model = BaseModel()
 
@@ -36,6 +40,8 @@ class Algorithm():
         self.logger = generate_logger('invoker.algorithm')
         self.logger.propagate = False
 
+        self.trade_data = None
+
     def new_last_time(self, now):
 
         last_invoke_time = now + datetime.timedelta(minutes=self.timeframe_minutes[self.timeframe])
@@ -45,18 +51,6 @@ class Algorithm():
         last_invoke_time = self.timeframe_smooth_func[self.timeframe](last_invoke_time)
 
         return last_invoke_time
-
-    def define_amount(self, balance: float):
-        leverage = 8.0
-        k = 1 / len(self.tickers)
-        self.usd_amount = balance * leverage * k
-        return self.usd_amount
-
-    def load_data(self, data: dict):
-        self.data = data
-
-    def load_storage(self, storage: Storage):
-        self.storage = storage
 
     def _get_tickers_to_check(self):
 
@@ -68,10 +62,10 @@ class Algorithm():
         result = []
 
         for ticker in tickers_to_check:
-            if ticker not in self.data:
+            if ticker not in self.trade_data.data:
                 self.logger.critical('Ticker not in algorithm data!')
                 continue
-            df = self.data[ticker]
+            df = self.trade_data.data[ticker]
             if df is None:
                 self.logger.critical(f'Can not nalyse_open for {ticker} due to data is None!')
                 return Action.HOLD
@@ -84,26 +78,26 @@ class Algorithm():
             self.logger.debug(f'Action for {ticker}(closed) is {Action.represent(action)} (value_pos={value_pos})')
 
             if action != Action.HOLD:
-                self.storage.add_position(ticker=ticker,
+                self.trade_data.storage.add_position(ticker=ticker,
                                           action=action,
-                                          amount=value_pos * self.usd_amount / df['close'].iloc[-1],
+                                          amount=value_pos * self.trade_data.usd_amount / df['close'].iloc[-1],
                                           info={
                                               'open_price': df['close'].iloc[-1]
                                           })
             result.append({
                 'ticker': ticker,
                 'action': action,
-                'amount': value_pos * self.usd_amount / df['close'].iloc[-1]
+                'amount': value_pos * self.trade_data.usd_amount / df['close'].iloc[-1]
             })
 
         return result
 
     def analyse_close(self):
         result = []
-        poses = self.storage.get_positions_by_state(state=State.OPENED)
+        poses = self.trade_data.storage.get_positions_by_state(state=State.OPENED)
         for pos in poses[:]:
 
-            action = self.model.analyse_close(self.data[pos.ticker],
+            action = self.model.analyse_close(self.trade_data.data[pos.ticker],
                                               open_price=pos.info['open_price'],
                                               side=pos.side)
 
@@ -120,7 +114,7 @@ class Algorithm():
                 'Action for {position}(opened) is {action}'.format(position=pos, action=Action.represent(action)))
 
             if action == Action.CLOSE:
-                self.storage.update_position_state_by_order_id(order_id=pos.order_id, state=State.READY_TO_CLOSE)
+                self.trade_data.storage.update_position_state_by_order_id(order_id=pos.order_id, state=State.READY_TO_CLOSE)
 
             result.append({
                 'position': pos,

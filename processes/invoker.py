@@ -3,7 +3,7 @@ from multiprocessing import Process
 from threading import Thread
 
 from logging_utils.generator import generate_logger
-from src.algorithm import Algorithm
+from src.algorithm import Algorithm, TradeData
 from src.static import AppContext
 from src.exchangeconnector import ExchangeConnector
 from src.static import *
@@ -14,12 +14,12 @@ import logging
 
 
 class Invoker(Thread):
-    def __init__(self, ctx: AppContext, exchange_connector: ExchangeConnector, storage: Storage, algo: Algorithm):
+    def __init__(self, ctx: AppContext, algo: Algorithm):
         Thread.__init__(self)
         self.last_invoke_time = datetime.datetime.now()
         self.ctx = ctx
-        self.exchange_connector = exchange_connector
-        self.storage = storage
+        self.exchange_connector = self.ctx.exchange_connector
+        self.storage = self.ctx.storage
         self.algorithm = algo
 
         self.logger = generate_logger('invoker')
@@ -31,6 +31,7 @@ class Invoker(Thread):
         self.last_invoke_time = func(datetime.datetime.now())  # self.last_invoke_time
 
         self.logger.info('New time: {time}'.format(time=self.last_invoke_time))
+
 
     def _execute(self):
         self.logger.info('Invoker executing...\nTimestamp: {ts}'.format(ts=datetime.datetime.now().timestamp()))
@@ -56,36 +57,21 @@ class Invoker(Thread):
                                                                              history_length=self.algorithm.history_length)
         self.logger.debug('Exchange data was updated')
 
-        # injecting instances and variables to algorithm instance
-        self.algorithm.define_amount(balance=balance)
-        self.algorithm.load_data(data=dict(zip(tickers_to_get, results)))
-        self.algorithm.load_storage(storage=self.storage)
+        # update algorithm's properties
+        #Временное поле
+        self.algorithm.trade_data=TradeData(balance=balance,
+                                            data=results,
+                                            storage=self.storage)
 
         # analysing for close
         self.logger.debug('Analysing positions for close...')
         result_close = self.algorithm.analyse_close()
-        ###
-        ###DEBUGINFO
-        # if len(result_close)>0:
-        #     if len(list(filter(lambda x: x['action'] != Action.HOLD, result_close))) > 0:
-        #         self.logger.debug('Tickers for close were analysed: {results}'.format(
-        #             results=list(filter(lambda x: x['action'] != Action.HOLD, result_close))))
-        ###DEBUGINFO
-        ###
-        self.logger.debug('Tickers for close were analysed')
 
+        self.logger.debug('Tickers for close were analysed')
         # analysing for open
         self.logger.debug('Analysing tickers for open...')
         results_open = self.algorithm.analyse_open()
 
-        ###
-        ###DEBUGINFO
-        # if len(results_open) > 0:
-        #     if len(list(filter(lambda x: x['action'] != Action.HOLD, results_open))) > 0:
-        #         self.logger.debug('Tickers for open were analysed: {results}'.format(
-        #             results=list(filter(lambda x: x['action'] != Action.HOLD, results_open))))
-        ###DEBUGINFO
-        ###
         if len(results_open) == 0:
             self.logger.debug('Tickers for open were analysed, no open actions')
 
